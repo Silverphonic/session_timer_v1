@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recording Session Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <style>
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background: #2a2a2a;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.3) 2px, rgba(0,0,0,.3) 4px);
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .container {
+            max-width: 1800px;
+            width: 100%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .main-content {
+            background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
+            padding: 25px;
+            border-radius: 4px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 8px 16px rgba(0,0,0,0.6),
+                0 0 0 1px rgba(0,0,0,0.8);
+            border: 2px solid #1a1a1a;
+        }
+        
+        .main-content h1 {
+            color: #ff8c00;
+            font-size: 32px;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            font-weight: 400;
+            font-family: 'Audiowide', Impact, sans-serif;
+            text-shadow: 
+                3px 3px 0px #cc6600,
+                6px 6px 0px rgba(0,0,0,0.8),
+                0 0 20px rgba(255,140,0,0.6);
+        }
+        
+        .legend {
+            background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
+            padding: 20px;
+            border-radius: 4px;
+            border: 2px solid #1a1a1a;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 8px 16px rgba(0,0,0,0.6);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .legend h3 { 
+            margin-top: 0; 
+            color: #ff8c00;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #ff8c00;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-family: 'Audiowide', Impact, sans-serif;
+        }
+        
+        .legend-section { margin: 15px 0; }
+        
+        .legend-section h4 { 
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #ffa500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Audiowide', Impact, sans-serif;
+        }
+        
+        .legend-item { 
+            margin: 5px 0;
+            padding: 6px 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2px;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #d4d4d4;
+            border-left: 2px solid #ff8c00;
+        }
+        
+        .key { 
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
+            color: #ff8c00;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            border: 1px solid #1a1a1a;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 2px 3px rgba(0,0,0,0.5);
+        }
+        
+        .top-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .top-buttons button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 13px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                0 4px 8px rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,0,0,0.5);
+        }
+        
+        .top-buttons button:active {
+            transform: translateY(1px);
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.3),
+                0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .btn-new-cue { 
+            background: linear-gradient(180deg, #ff6b00 0%, #cc5500 100%);
+            color: #fff;
+        }
+        .btn-new-cue:hover { 
+            background: linear-gradient(180deg, #ff7a1a 0%, #dd6611 100%);
+        }
+        
+        .btn-save { 
+            background: linear-gradient(180deg, #ff1493 0%, #c71585 100%);
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .btn-save:hover { 
+            background: linear-gradient(180deg, #ff33aa 0%, #dd2595 100%);
+        }
+        
+        .btn-load { 
+            background: linear-gradient(180deg, #00d4ff 0%, #00a0cc 100%);
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .btn-load:hover { 
+            background: linear-gradient(180deg, #1ae4ff 0%, #11b0dd 100%);
+        }
+        
+        .btn-export { 
+            background: linear-gradient(180deg, #9b59b6 0%, #7d3c98 100%);
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .btn-export:hover { 
+            background: linear-gradient(180deg, #ab69c6 0%, #8d4ca8 100%);
+        }
+        
+        .project-info {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 18px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 3px;
+            border: 1px solid rgba(255,140,0,0.3);
+        }
+        
+        .project-info label { 
+            font-weight: bold;
+            padding-top: 8px;
+            color: #ffa500;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .project-info input { 
+            padding: 10px;
+            border: 1px solid #1a1a1a;
+            border-radius: 2px;
+            font-size: 14px;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            color: #ff8c00;
+            font-family: 'Courier New', monospace;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .project-info input::placeholder {
+            color: #665533;
+        }
+        
+        .project-info input:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.5),
+                0 0 8px rgba(255,140,0,0.3);
+        }
+        
+        #recordingModeIndicator {
+            text-align: center;
+            padding: 18px;
+            margin: 10px 0;
+            background: linear-gradient(180deg, #ff8c00 0%, #cc6600 100%);
+            border-radius: 3px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #ff6b00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                0 4px 8px rgba(255,140,0,0.3);
+            color: #1a1a1a;
+        }
+        
+        #recordingModeIndicator.recording-active {
+            animation: pulse-orange 1s infinite;
+        }
+        
+        @keyframes pulse-orange {
+            0%, 100% {
+                background: linear-gradient(180deg, #ff8c00 0%, #cc6600 100%);
+                box-shadow: 
+                    inset 0 1px 0 rgba(255,255,255,0.2),
+                    0 4px 8px rgba(255,140,0,0.3),
+                    0 0 20px rgba(255,140,0,0.6);
+            }
+            50% {
+                background: linear-gradient(180deg, #ffaa00 0%, #dd7700 100%);
+                box-shadow: 
+                    inset 0 1px 0 rgba(255,255,255,0.3),
+                    0 4px 8px rgba(255,140,0,0.5),
+                    0 0 40px rgba(255,140,0,1);
+            }
+        }
+        
+        .setup-section {
+            margin: 20px 0;
+            padding: 18px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 3px;
+            border: 1px solid rgba(255,140,0,0.2);
+        }
+        
+        .setup-section h3 { 
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: #ffa500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid rgba(255,140,0,0.3);
+            padding-bottom: 8px;
+            font-family: 'Audiowide', Impact, sans-serif;
+        }
+        
+        .musician-grid, .comment-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .musician-input, .comment-input {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .musician-input label, .comment-input label { 
+            font-weight: bold;
+            font-size: 11px;
+            color: #ff8c00;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .musician-input input, .comment-input input {
+            padding: 8px;
+            border: 1px solid #1a1a1a;
+            border-radius: 2px;
+            font-size: 12px;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            color: #ff8c00;
+            font-family: 'Courier New', monospace;
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.5);
+        }
+        
+        .musician-input input::placeholder,
+        .comment-input input::placeholder {
+            color: #665533;
+        }
+        
+        .musician-input input:focus,
+        .comment-input input:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 
+                inset 0 2px 3px rgba(0,0,0,0.5),
+                0 0 6px rgba(255,140,0,0.3);
+        }
+        
+        .take-section { margin: 30px 0; }
+        
+        .take-header {
+            font-size: 22px;
+            font-weight: 400;
+            padding: 15px;
+            background: linear-gradient(180deg, #ff8c00 0%, #cc6600 100%);
+            color: #1a1a1a;
+            text-align: center;
+            border-radius: 3px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.3),
+                0 4px 8px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,0,0,0.3);
+            font-family: 'Audiowide', Impact, sans-serif;
+        }
+        
+        .musician-columns {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+        
+        .musician-column {
+            border: 2px solid #1a1a1a;
+            border-radius: 3px;
+            overflow: hidden;
+            min-height: 200px;
+            background: rgba(0,0,0,0.2);
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.05),
+                0 3px 6px rgba(0,0,0,0.4);
+        }
+        
+        .musician-header {
+            background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
+            color: #ff8c00;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: pre-line;
+            border-bottom: 2px solid #ff8c00;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: inset 0 -1px 0 rgba(255,140,0,0.5);
+        }
+        
+        .timestamp-list { padding: 10px; }
+        
+        .timestamp-entry {
+            padding: 8px;
+            margin: 6px 0;
+            background: rgba(0,0,0,0.4);
+            border-radius: 2px;
+            font-size: 12px;
+            line-height: 1.4;
+            border-left: 3px solid #ff8c00;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .timestamp-entry strong {
+            display: block;
+            color: #ffa500;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        
+        .comment {
+            color: #999;
+            font-style: italic;
+            font-size: 11px;
+        }
+        
+        .take-separator {
+            height: 16px;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255,140,0,0.1),
+                rgba(255,140,0,0.1) 10px,
+                rgba(0,0,0,0.2) 10px,
+                rgba(0,0,0,0.2) 20px
+            );
+            margin: 20px 0;
+            border-radius: 2px;
+            border: 1px solid rgba(255,140,0,0.2);
+        }
+        
+        .waiting-indicator {
+            background: linear-gradient(180deg, #ff8c00 0%, #cc6600 100%);
+            border: 2px solid #ff6b00;
+            padding: 12px;
+            text-align: center;
+            border-radius: 3px;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulse 1s infinite;
+            box-shadow: 0 4px 8px rgba(255,140,0,0.3);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Floating Timer Widget - Classic VU Meter Style */
+        .floating-timer {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 400px;
+            background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%);
+            border-radius: 4px;
+            padding: 30px;
+            box-shadow: 
+                inset 0 2px 0 rgba(255,255,255,0.1),
+                0 12px 32px rgba(0,0,0,0.8),
+                0 0 0 2px #1a1a1a;
+            z-index: 1000;
+            border: 3px solid #1a1a1a;
+            cursor: move;
+            user-select: none;
+        }
+        
+        .floating-timer:hover {
+            border-color: #ff8c00;
+            box-shadow: 
+                inset 0 2px 0 rgba(255,255,255,0.1),
+                0 12px 32px rgba(0,0,0,0.8),
+                0 0 12px rgba(255,140,0,0.3);
+        }
+        
+        .floating-timer:active {
+            cursor: grabbing;
+        }
+        
+        .floating-timer-time {
+            font-size: 80px;
+            font-family: 'Courier New', 'Digital-7', monospace;
+            font-weight: bold;
+            color: #ff6b00;
+            text-align: center;
+            letter-spacing: 0.15em;
+            text-shadow: 
+                0 0 30px rgba(255,107,0,0.8),
+                0 0 10px rgba(255,140,0,0.6),
+                0 2px 4px rgba(0,0,0,0.8);
+            line-height: 1;
+            margin-bottom: 15px;
+            background: radial-gradient(ellipse at center, rgba(255,107,0,0.1) 0%, transparent 70%);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .floating-timer-status {
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .floating-timer-status.stopped {
+            color: #666;
+        }
+        
+        .floating-timer-status.recording {
+            color: #ff0000;
+            animation: blink 1s infinite;
+            text-shadow: 0 0 10px rgba(255,0,0,0.8);
+        }
+        
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <h1>Recording Session Timer</h1>
+            
+            <div class="top-buttons">
+                <button class="btn-new-cue" onclick="newCue()">🎵 New Cue</button>
+                <button class="btn-save" onclick="saveSession()">💾 Save Session</button>
+                <button class="btn-load" onclick="loadSession()">📂 Load Session</button>
+                <button class="btn-export" onclick="exportToCSV()">📥 Export CSV</button>
+            </div>
+            
+            <div class="project-info">
+                <label>Project Name:</label>
+                <input type="text" id="projectName" placeholder="Enter project name">
+                
+                <label>Date:</label>
+                <input type="text" id="date" placeholder="Enter date (press Tab for today)" onkeydown="if(event.key==='Tab' && this.value===''){event.preventDefault(); this.value=new Date().toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});}">
+                
+                <label>Recording Location:</label>
+                <input type="text" id="location" placeholder="Enter recording location">
+                
+                <label>Recording Engineer:</label>
+                <input type="text" id="engineer" placeholder="Enter recording engineer">
+                
+                <label>Composer:</label>
+                <input type="text" id="composer" placeholder="Enter composer">
+                
+                <label>Assistant:</label>
+                <input type="text" id="assistant" placeholder="Enter assistant">
+                
+                <label>Recording/Cue Name:</label>
+                <input type="text" id="cueName" placeholder="Enter cue name">
+            </div>
+            
+            <div id="recordingModeIndicator" onclick="toggleRecordingMode()">
+                📝 EDITING MODE - Press SPACEBAR to enter Recording Mode
+            </div>
+            
+            <div id="waitingIndicator" style="display: none;" class="waiting-indicator">
+                ⏳ Waiting for comment (Q-P) or press Esc to skip...
+            </div>
+            
+            <div class="setup-section">
+                <h3>Musician Setup (Keys 1-9, 0 for musician 10)</h3>
+                <div class="musician-grid" id="musicianGrid"></div>
+            </div>
+            
+            <div class="setup-section">
+                <h3>Comment Shortcuts (Q-P Keys)</h3>
+                <div class="comment-grid" id="commentGrid"></div>
+            </div>
+            
+            <div id="takes-container"></div>
+        </div>
+        
+        <div class="legend" id="legend"></div>
+    </div>
+    
+    <!-- Floating Timer Widget -->
+    <div class="floating-timer">
+        <div class="floating-timer-time" id="timer">00:00</div>
+        <div class="floating-timer-status stopped" id="status">○ STOPPED</div>
+    </div>
+    
+    <script>
+        // Global state
+        let timerInterval = null;
+        let elapsedSeconds = 0;
+        let isRunning = false;
+        let recordingMode = false;
+        let currentTake = 1;
+        let awaitingComment = null;
+        let allData = [];
+        let undoStack = [];
+        let redoStack = [];
+        
+        const musicians = [
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''},
+            {name: '', inst: ''}
+        ];
+        
+        const comments = {
+            'Q': '', 'W': '', 'E': '', 'R': '', 'T': '',
+            'Y': '', 'U': '', 'I': '', 'O': '', 'P': ''
+        };
+        
+        // Initialize
+        function init() {
+            // Check if this is a new cue tab
+            const template = localStorage.getItem('newCueTemplate');
+            if (template) {
+                try {
+                    const data = JSON.parse(template);
+                    
+                    // Load session info (but not cue name)
+                    document.getElementById('projectName').value = data.projectName || '';
+                    document.getElementById('date').value = data.date || '';
+                    document.getElementById('location').value = data.location || '';
+                    document.getElementById('engineer').value = data.engineer || '';
+                    document.getElementById('composer').value = data.composer || '';
+                    document.getElementById('assistant').value = data.assistant || '';
+                    
+                    // Update musicians array and render
+                    data.musicians.forEach((m, i) => {
+                        musicians[i] = m;
+                    });
+                    
+                    // Update comments
+                    Object.keys(data.comments).forEach(key => {
+                        comments[key] = data.comments[key];
+                    });
+                    
+                    // Clear the template from localStorage
+                    localStorage.removeItem('newCueTemplate');
+                } catch (e) {
+                    console.error('Error loading template:', e);
+                }
+            }
+            
+            renderMusicianInputs();
+            renderCommentInputs();
+            createTake(1);
+            updateTimer();
+            updateLegend();
+            document.addEventListener('keydown', handleKeyPress);
+            
+            // Auto-update legend when inputs change
+            setInterval(updateLegend, 1000);
+            
+            // Make timer draggable
+            makeDraggable(document.querySelector('.floating-timer'));
+        }
+        
+        // Make element draggable
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            element.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+            
+            function elementDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+                element.style.bottom = "auto";
+                element.style.right = "auto";
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+        
+        // Render musician inputs
+        function renderMusicianInputs() {
+            const grid = document.getElementById('musicianGrid');
+            grid.innerHTML = '';
+            musicians.forEach((m, i) => {
+                const div = document.createElement('div');
+                div.className = 'musician-input';
+                div.innerHTML = `
+                    <label>${i+1 === 10 ? '0 (10)' : (i+1)}. Name:</label>
+                    <input type="text" id="musician${i+1}-name" value="${m.name}" placeholder="Musician name" oninput="updateMusicianHeaders()">
+                    <input type="text" id="musician${i+1}-inst" value="${m.inst}" placeholder="Instrument" oninput="updateMusicianHeaders()">
+                `;
+                grid.appendChild(div);
+            });
+        }
+        
+        // Update all musician column headers across all takes
+        function updateMusicianHeaders() {
+            for (let i = 1; i <= 10; i++) {
+                const name = document.getElementById(`musician${i}-name`).value;
+                const inst = document.getElementById(`musician${i}-inst`).value;
+                const keyLabel = i === 10 ? '0' : i;
+                const label = inst && name ? `${keyLabel}\n${inst}\n(${name})` : name || inst ? `${keyLabel}\n${name || inst}` : `${keyLabel}\nMusician ${keyLabel}`;
+                
+                // Update all headers for this musician across all takes
+                document.querySelectorAll(`[data-musician="${i}"]`).forEach(col => {
+                    const header = col.parentElement.querySelector('.musician-header');
+                    if (header) {
+                        header.textContent = label;
+                    }
+                });
+            }
+        }
+        
+        // Render comment inputs
+        function renderCommentInputs() {
+            const grid = document.getElementById('commentGrid');
+            grid.innerHTML = '';
+            Object.keys(comments).forEach(key => {
+                const div = document.createElement('div');
+                div.className = 'comment-input';
+                div.innerHTML = `
+                    <label>${key}:</label>
+                    <input type="text" id="comment-${key}" value="${comments[key]}" placeholder="Comment text">
+                `;
+                grid.appendChild(div);
+            });
+        }
+        
+        // Update legend dynamically
+        function updateLegend() {
+            const legend = document.getElementById('legend');
+            let html = '<h3>⌨️ KEYBOARD SHORTCUTS</h3>';
+            
+            html += '<div class="legend-section"><h4>🎙️ RECORDING MODE</h4>';
+            html += '<div class="legend-item"><span class="key">SPACEBAR</span> Toggle Recording Mode</div></div>';
+            
+            html += '<div class="legend-section"><h4>🎵 MUSICIANS</h4>';
+            for (let i = 1; i <= 10; i++) {
+                const name = document.getElementById(`musician${i}-name`)?.value || '';
+                const inst = document.getElementById(`musician${i}-inst`)?.value || '';
+                if (name || inst) {
+                    const display = (inst && name) ? `${inst} / ${name}` : inst || name;
+                    html += `<div class="legend-item"><span class="key">${i === 10 ? '0' : i}</span> ${display}</div>`;
+                }
+            }
+            html += '</div>';
+            
+            html += '<div class="legend-section"><h4>💬 COMMENTS</h4>';
+            Object.keys(comments).forEach(key => {
+                const text = document.getElementById(`comment-${key}`)?.value || '';
+                if (text) {
+                    html += `<div class="legend-item"><span class="key">${key}</span> ${text}</div>`;
+                }
+            });
+            html += '<div class="legend-item"><span class="key">Esc</span> Skip comment</div></div>';
+            
+            html += '<div class="legend-section"><h4>⚙️ CONTROLS</h4>';
+            html += '<div class="legend-item"><span class="key">R</span> Reset timer</div>';
+            html += '<div class="legend-item"><span class="key">N</span> New take</div>';
+            html += '<div class="legend-item"><span class="key">M</span> Reset to Take 1</div>';
+            html += '<div class="legend-item"><span class="key">X</span> Undo last</div>';
+            html += '<div class="legend-item"><span class="key">Z</span> Redo last</div></div>';
+            
+            html += '<div class="legend-section"><h4>📝 WORKFLOW</h4>';
+            html += '<ol style="font-size: 11px; line-height: 1.8; padding-left: 20px; color: #d4d4d4;">';
+            html += '<li>Press <span class="key">SPACE</span> → Recording Mode</li>';
+            html += '<li>Press number to log timestamp</li>';
+            html += '<li>Press letter to add comment</li>';
+            html += '<li>Press <span class="key">N</span> for new take</li>';
+            html += '<li>Export when done!</li></ol></div>';
+            
+            html += '<div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,140,0,0.3); text-align: center; font-size: 10px; line-height: 1.5; color: #ff8c00;">';
+            html += '©2025 Silverphonic SoundLab<br>';
+            html += '<a href="mailto:info@silverphonic.com" style="color: #ff8c00; text-decoration: none;">info@silverphonic.com</a><br>';
+            html += '<a href="https://silverphonic.com" target="_blank" style="color: #ff8c00; text-decoration: none;">Silverphonic.com</a></div>';
+            
+            legend.innerHTML = html;
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        function updateTimer() {
+            document.getElementById('timer').textContent = formatTime(elapsedSeconds);
+        }
+        
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById('status').textContent = '○ STOPPED';
+                document.getElementById('status').className = 'stopped';
+            } else {
+                isRunning = true;
+                document.getElementById('status').textContent = '● RECORDING';
+                document.getElementById('status').className = 'recording';
+                timerInterval = setInterval(() => {
+                    elapsedSeconds++;
+                    updateTimer();
+                }, 1000);
+            }
+        }
+        
+        function toggleRecordingMode() {
+            recordingMode = !recordingMode;
+            const indicator = document.getElementById('recordingModeIndicator');
+            
+            if (recordingMode) {
+                indicator.textContent = '🎙️ RECORDING MODE ACTIVE - Press SPACEBAR to exit';
+                indicator.classList.add('recording-active');
+                if (!isRunning) toggleTimer();
+            } else {
+                indicator.textContent = '📝 EDITING MODE - Press SPACEBAR to enter Recording Mode';
+                indicator.classList.remove('recording-active');
+                if (isRunning) toggleTimer();
+            }
+        }
+        
+        function handleKeyPress(e) {
+            if (e.target.tagName === 'INPUT') return;
+            
+            // SPACEBAR always works
+            if (e.key === ' ' && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+                e.preventDefault();
+                toggleRecordingMode();
+                return;
+            }
+            
+            // R, N, M work anytime (outside Recording Mode too)
+            if ((e.key === 'r' || e.key === 'R') && !recordingMode) {
+                e.preventDefault();
+                elapsedSeconds = 0;
+                updateTimer();
+                return;
+            }
+            
+            if ((e.key === 'n' || e.key === 'N') && !recordingMode) {
+                e.preventDefault();
+                newTake();
+                return;
+            }
+            
+            if ((e.key === 'm' || e.key === 'M') && !recordingMode) {
+                e.preventDefault();
+                resetToTake1();
+                return;
+            }
+            
+            // Recording Mode shortcuts
+            if (!recordingMode) return;
+            
+            const numMap = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '0': 10};
+            if (numMap[e.key]) {
+                e.preventDefault();
+                logTimestamp(numMap[e.key]);
+                return;
+            }
+            
+            const commentKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
+            if (commentKeys.includes(e.key.toUpperCase()) && awaitingComment) {
+                e.preventDefault();
+                addComment(e.key.toUpperCase());
+                return;
+            }
+            
+            if (e.key === 'Escape' && awaitingComment) {
+                e.preventDefault();
+                skipComment();
+                return;
+            }
+            
+            if (e.key === 'n' || e.key === 'N') {
+                e.preventDefault();
+                newTake();
+                return;
+            }
+            
+            if (e.key === 'm' || e.key === 'M') {
+                e.preventDefault();
+                resetToTake1();
+                return;
+            }
+            
+            if (e.key === 'r' || e.key === 'R') {
+                e.preventDefault();
+                elapsedSeconds = 0;
+                updateTimer();
+                return;
+            }
+            
+            // Undo/Redo
+            if ((e.key === 'x' || e.key === 'X') && undoStack.length > 0) {
+                e.preventDefault();
+                undo();
+                return;
+            }
+            
+            if ((e.key === 'z' || e.key === 'Z') && redoStack.length > 0) {
+                e.preventDefault();
+                redo();
+                return;
+            }
+        }
+        
+        function logTimestamp(musicianNum) {
+            const timestamp = formatTime(elapsedSeconds);
+            const takeEl = document.querySelector(`[data-take="${currentTake}"]`);
+            if (!takeEl) return;
+            
+            const columnEl = takeEl.querySelector(`[data-musician="${musicianNum}"]`);
+            if (!columnEl) return;
+            
+            const entry = document.createElement('div');
+            entry.className = 'timestamp-entry';
+            entry.innerHTML = `<strong>${timestamp}</strong><span class="comment"></span>`;
+            columnEl.appendChild(entry);
+            
+            awaitingComment = {
+                musician: musicianNum,
+                timestamp: timestamp,
+                take: currentTake,
+                entry: entry
+            };
+            
+            // Save to undo stack
+            undoStack.push({type: 'timestamp', data: awaitingComment});
+            redoStack = [];
+            
+            document.getElementById('waitingIndicator').style.display = 'block';
+        }
+        
+        function addComment(key) {
+            if (!awaitingComment) return;
+            
+            const commentText = document.getElementById(`comment-${key}`).value || key;
+            const commentSpan = awaitingComment.entry.querySelector('.comment');
+            commentSpan.textContent = commentText;
+            commentSpan.className = 'comment';
+            
+            allData.push({
+                take: awaitingComment.take,
+                musician: awaitingComment.musician,
+                timestamp: awaitingComment.timestamp,
+                comment: commentText
+            });
+            
+            // Save to undo stack
+            undoStack[undoStack.length - 1].comment = commentText;
+            
+            awaitingComment = null;
+            document.getElementById('waitingIndicator').style.display = 'none';
+        }
+        
+        function skipComment() {
+            if (!awaitingComment) return;
+            
+            allData.push({
+                take: awaitingComment.take,
+                musician: awaitingComment.musician,
+                timestamp: awaitingComment.timestamp,
+                comment: ''
+            });
+            
+            awaitingComment = null;
+            document.getElementById('waitingIndicator').style.display = 'none';
+        }
+        
+        function undo() {
+            if (undoStack.length === 0) return;
+            
+            const action = undoStack.pop();
+            redoStack.push(action);
+            
+            if (action.type === 'timestamp') {
+                // Remove the entry from display
+                if (action.data.entry && action.data.entry.parentNode) {
+                    action.data.entry.parentNode.removeChild(action.data.entry);
+                }
+                // Remove from allData
+                allData = allData.filter(d => 
+                    !(d.take === action.data.take && 
+                      d.musician === action.data.musician && 
+                      d.timestamp === action.data.timestamp)
+                );
+                // Restore awaiting comment state
+                awaitingComment = action.data;
+                awaitingComment.entry = null; // Clear the entry reference
+                document.getElementById('waitingIndicator').style.display = 'block';
+            }
+        }
+        
+        function redo() {
+            if (redoStack.length === 0) return;
+            
+            const action = redoStack.pop();
+            undoStack.push(action);
+            
+            if (action.type === 'timestamp') {
+                logTimestamp(action.data.musician);
+                if (action.comment) {
+                    // Need to find the key that matches this comment
+                    const key = Object.keys(comments).find(k => 
+                        document.getElementById(`comment-${k}`).value === action.comment
+                    );
+                    if (key) addComment(key);
+                }
+            }
+        }
+        
+        function createTake(takeNum) {
+            const container = document.getElementById('takes-container');
+            
+            const takeDiv = document.createElement('div');
+            takeDiv.className = 'take-section';
+            takeDiv.setAttribute('data-take', takeNum);
+            
+            let html = `<div class="take-header">TAKE ${takeNum}</div><div class="musician-columns">`;
+            
+            for (let i = 1; i <= 10; i++) {
+                const name = document.getElementById(`musician${i}-name`).value;
+                const inst = document.getElementById(`musician${i}-inst`).value;
+                const keyLabel = i === 10 ? '0' : i;
+                const label = inst && name ? `${keyLabel}\n${inst}\n(${name})` : name || inst ? `${keyLabel}\n${name || inst}` : `${keyLabel}\nMusician ${keyLabel}`;
+                
+                html += `
+                    <div class="musician-column">
+                        <div class="musician-header">${label}</div>
+                        <div class="timestamp-list" data-musician="${i}"></div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            
+            if (takeNum > 1) {
+                const separator = document.createElement('div');
+                separator.className = 'take-separator';
+                container.appendChild(separator);
+            }
+            
+            takeDiv.innerHTML = html;
+            container.appendChild(takeDiv);
+        }
+        
+        function newTake() {
+            currentTake++;
+            createTake(currentTake);
+        }
+        
+        function resetToTake1() {
+            document.getElementById('takes-container').innerHTML = '';
+            currentTake = 1;
+            allData = [];
+            undoStack = [];
+            redoStack = [];
+            createTake(1);
+        }
+        
+        function exportToCSV() {
+            const projectName = document.getElementById('projectName').value || 'Untitled';
+            const date = document.getElementById('date').value;
+            const location = document.getElementById('location').value;
+            const engineer = document.getElementById('engineer').value;
+            const composer = document.getElementById('composer').value;
+            const assistant = document.getElementById('assistant').value;
+            const cueName = document.getElementById('cueName').value;
+            
+            let csv = 'PROJECT INFO\n';
+            csv += `Project Name,${projectName}\n`;
+            csv += `Date,${date}\n`;
+            csv += `Location,${location}\n`;
+            csv += `Engineer,${engineer}\n`;
+            csv += `Composer,${composer}\n`;
+            csv += `Assistant,${assistant}\n`;
+            csv += `Cue Name,${cueName}\n\n`;
+            
+            csv += 'RECORDING DATA\n';
+            csv += 'Take,Instrument,Musician,Timestamp,Comment\n';
+            
+            // Group by take, then by musician
+            const grouped = {};
+            allData.forEach(entry => {
+                const key = `${entry.take}-${entry.musician}`;
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(entry);
+            });
+            
+            // Sort and output
+            Object.keys(grouped).sort().forEach(key => {
+                grouped[key].forEach(entry => {
+                    const inst = document.getElementById(`musician${entry.musician}-inst`).value;
+                    const name = document.getElementById(`musician${entry.musician}-name`).value;
+                    csv += `${entry.take},${inst},${name},${entry.timestamp},${entry.comment}\n`;
+                });
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const filename = `${cueName || 'recording'}_${date.replace(/[^a-z0-9]/gi, '_')}.csv`;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert(`${filename} exported as CSV file.`);
+        }
+        
+        function saveSession() {
+            const session = {
+                projectName: document.getElementById('projectName').value,
+                date: document.getElementById('date').value,
+                location: document.getElementById('location').value,
+                engineer: document.getElementById('engineer').value,
+                composer: document.getElementById('composer').value,
+                assistant: document.getElementById('assistant').value,
+                cueName: document.getElementById('cueName').value,
+                musicians: [],
+                comments: {},
+                allData: allData,
+                currentTake: currentTake,
+                elapsedSeconds: elapsedSeconds
+            };
+            
+            for (let i = 1; i <= 10; i++) {
+                session.musicians.push({
+                    name: document.getElementById(`musician${i}-name`).value,
+                    inst: document.getElementById(`musician${i}-inst`).value
+                });
+            }
+            
+            Object.keys(comments).forEach(key => {
+                session.comments[key] = document.getElementById(`comment-${key}`).value;
+            });
+            
+            const json = JSON.stringify(session, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `session_${session.cueName || 'save'}_${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('Session saved!');
+        }
+        
+        function loadSession() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    try {
+                        const session = JSON.parse(event.target.result);
+                        
+                        document.getElementById('projectName').value = session.projectName || '';
+                        document.getElementById('date').value = session.date || '';
+                        document.getElementById('location').value = session.location || '';
+                        document.getElementById('engineer').value = session.engineer || '';
+                        document.getElementById('composer').value = session.composer || '';
+                        document.getElementById('assistant').value = session.assistant || '';
+                        document.getElementById('cueName').value = session.cueName || '';
+                        
+                        session.musicians.forEach((m, i) => {
+                            document.getElementById(`musician${i+1}-name`).value = m.name;
+                            document.getElementById(`musician${i+1}-inst`).value = m.inst;
+                        });
+                        
+                        Object.keys(session.comments).forEach(key => {
+                            document.getElementById(`comment-${key}`).value = session.comments[key];
+                        });
+                        
+                        allData = session.allData || [];
+                        currentTake = session.currentTake || 1;
+                        elapsedSeconds = session.elapsedSeconds || 0;
+                        updateTimer();
+                        
+                        // Rebuild takes
+                        document.getElementById('takes-container').innerHTML = '';
+                        for (let i = 1; i <= currentTake; i++) {
+                            createTake(i);
+                        }
+                        
+                        // Restore entries
+                        allData.forEach(entry => {
+                            const takeEl = document.querySelector(`[data-take="${entry.take}"]`);
+                            if (takeEl) {
+                                const columnEl = takeEl.querySelector(`[data-musician="${entry.musician}"]`);
+                                if (columnEl) {
+                                    const entryDiv = document.createElement('div');
+                                    entryDiv.className = 'timestamp-entry';
+                                    entryDiv.innerHTML = `<strong>${entry.timestamp}</strong><span class="comment">${entry.comment}</span>`;
+                                    columnEl.appendChild(entryDiv);
+                                }
+                            }
+                        });
+                        
+                        updateLegend();
+                        alert('Session loaded!');
+                    } catch (err) {
+                        alert('Error loading session: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function newCue() {
+            // Collect current session data
+            const sessionData = {
+                projectName: document.getElementById('projectName').value,
+                date: document.getElementById('date').value,
+                location: document.getElementById('location').value,
+                engineer: document.getElementById('engineer').value,
+                composer: document.getElementById('composer').value,
+                assistant: document.getElementById('assistant').value,
+                musicians: [],
+                comments: {}
+            };
+            
+            for (let i = 1; i <= 10; i++) {
+                sessionData.musicians.push({
+                    name: document.getElementById(`musician${i}-name`).value,
+                    inst: document.getElementById(`musician${i}-inst`).value
+                });
+            }
+            
+            Object.keys(comments).forEach(key => {
+                sessionData.comments[key] = document.getElementById(`comment-${key}`).value;
+            });
+            
+            // Save to localStorage for the new tab
+            localStorage.setItem('newCueTemplate', JSON.stringify(sessionData));
+            
+            // Open new tab
+            window.open(window.location.href, '_blank');
+        }
+        
+        window.onload = init;
+    </script>
+</body>
+</html>
